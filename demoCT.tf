@@ -218,6 +218,7 @@ resource "aws_cloudtrail" "example" {
 
 
 
+
 #Ensure a log metric filter and alarm exist for Management Console sign-in without MFA
 resource "aws_cloudwatch_log_metric_filter" "MFAUsed" {
   name           = "console-without-mfa"
