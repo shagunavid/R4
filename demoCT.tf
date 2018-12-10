@@ -192,17 +192,19 @@ resource "aws_iam_account_password_policy" "strict" {
 
 resource "aws_iam_account_password_policy" "strict_2" {
   minimum_password_length        = 16
-  require_lowercase_characters   = false
+  require_lowercase_characters   = true
   require_numbers                = true
   require_uppercase_characters   = true
   require_symbols                = true
   allow_users_to_change_password = true
 }
-resource "aws_cloudtrail"  "example" {
+
+
+resource "aws_cloudtrail" "example" {
 
   is_multi_region_trail = true
 
-  #cloud_watch_logs_group_arn    = "aws:arn::log-group:someLogGroup:"
+  cloud_watch_logs_group_arn    = "aws:arn::log-group:someLogGroup:"
   event_selector {
     read_write_type = "All"
     include_management_events = true
@@ -213,7 +215,6 @@ resource "aws_cloudtrail"  "example" {
     }
   }
 }
-
 
 
 #Ensure a log metric filter and alarm exist for Management Console sign-in without MFA
