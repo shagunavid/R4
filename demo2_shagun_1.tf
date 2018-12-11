@@ -226,6 +226,7 @@ resource "aws_cloudtrail" "example2" {
    }
  }
 }
+
 resource "aws_cloudtrail" "example3" {
  is_multi_region_trail = true
  enable_logging = true
