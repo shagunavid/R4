@@ -241,6 +241,7 @@ resource "aws_cloudtrail" "example3" {
  }
 }
 
+
 #Ensure a log metric filter and alarm exist for unauthorized API calls
 resource "aws_cloudwatch_log_metric_filter" "UnauthorizedAccess" {
  name           = "console-without-mfa4"
