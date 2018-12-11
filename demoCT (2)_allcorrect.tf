@@ -13,6 +13,7 @@ resource "aws_instance" "example" {
   }
 }
 
+
 #here there
 
 resource "aws_eip" "ip" {
