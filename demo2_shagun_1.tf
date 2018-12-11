@@ -411,6 +411,7 @@ resource "aws_cloudwatch_log_metric_filter" "CreateVpc" {
 }
 
 
+
 resource "aws_sns_topic" "security_alerts" {
   name  = "someTopic"
   arn   = "someTopic"
