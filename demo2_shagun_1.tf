@@ -202,7 +202,7 @@ resource "aws_iam_account_password_policy" "strict_2" {
 resource "aws_cloudtrail" "example" {
  is_multi_region_trail = true
  enable_logging = true
- cloud_watch_logs_group_arn    = "aws:arn::log-group:someLogGroup:"
+ #cloud_watch_logs_group_arn    = "aws:arn::log-group:someLogGroup:"
  event_selector {
    read_write_type = "All"
    include_management_events = true
@@ -410,7 +410,18 @@ resource "aws_cloudwatch_log_metric_filter" "CreateVpc" {
   }
 }
 
-
+resource "aws_cloudwatch_metric_alarm" "console_without_mfa" {
+  alarm_name          = "console-without-mfa-us-west-2"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = "1"
+  metric_name         = "ConsoleWithoutMFACount"
+  namespace           = "someNamespace"
+  period              = "60"
+  statistic           = "Sum"
+  threshold           = "1"
+  alarm_description   = "Use of the console by an account without MFA has been detected"
+  alarm_actions       = ["someTopic"]
+}
 
 resource "aws_sns_topic" "security_alerts" {
   name  = "someTopic"
