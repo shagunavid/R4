@@ -13,7 +13,6 @@ resource "aws_instance" "example" {
   }
 }
 
-
 #here there
 
 resource "aws_eip" "ip" {
@@ -199,6 +198,8 @@ resource "aws_iam_account_password_policy" "strict_2" {
   require_symbols                = true
   allow_users_to_change_password = true
 }
+
+
 
 
 
