@@ -13,7 +13,6 @@ resource "aws_instance" "example" {
   }
 }
 
-
 #here there
 
 resource "aws_eip" "ip" {
@@ -200,8 +199,6 @@ resource "aws_iam_account_password_policy" "strict_2" {
   allow_users_to_change_password = true
 }
 
-
-
 resource "aws_cloudtrail" "example" {
 
   is_multi_region_trail = true
@@ -218,11 +215,9 @@ resource "aws_cloudtrail" "example" {
   }
 }
 
-
-#Ensure a log metric filter and alarm exist for Management Console sign-in without MFA
 resource "aws_cloudwatch_log_metric_filter" "MFAUsed" {
   name           = "console-without-mfa"
-  pattern        = "{$.eventName = \"ConsoleLogin\"}"
+  pattern        = "{$.eventName = \"ConsoleLogin\" || $.additionalEventData.MFAUsed	!= \"Yes\"}"
   log_group_name = "someLogGroup"
 
   metric_transformation {
@@ -232,61 +227,33 @@ resource "aws_cloudwatch_log_metric_filter" "MFAUsed" {
   }
 }
 
-#Ensure a log metric filter and alarm exist for unauthorized API calls
-resource "aws_cloudwatch_log_metric_filter" "UnauthorizedAccess" {
-  name           = "console-without-mfa4"
-  pattern        = "{ ($.errorCode = \"*UnauthorizedOperation\") }"
-  log_group_name = "someLogGroup"
-
-  metric_transformation {
-    name      = "ConsoleWithoutMFACount"
-    namespace = "someNamespace"
-    value     = "1"
-  }
-}
-
-#Ensure a log metric filter and alarm exist for usage of "root" account
 resource "aws_cloudwatch_log_metric_filter" "Root" {
-  name           = "console-without-mfa5"
+  name           = "console-without-mfa"
   pattern        = "{$.userIdentity.type = \"Root\" || $.userIdentity.invokedBy NOT EXISTS || $.eventType != \"AwsServiceEvent\"}"
   log_group_name = "someLogGroup"
 
   metric_transformation {
     name      = "ConsoleWithoutMFACount"
-    namespace = "someOtherNamespace"
+    namespace = "someNamespace"
     value     = "1"
   }
 }
 
-#Ensure a log metric filter and alarm exist for IAM policy changes
 resource "aws_cloudwatch_log_metric_filter" "DeleteGroupPolicy" {
-  name           = "console-without-mfa6"
+  name           = "console-without-mfa"
   pattern        = "{($.eventName=DeleteGroupPolicy)||($.eventName=DeleteRolePolicy)||($.eventName=Delete UserPolicy)||($.eventName=PutGroupPolicy)||($.eventName=PutRolePolicy)||($.eventName=PutUserPolicy)||($.eventName=CreatePolicy)||($.eventName=DeletePolicy)||($.eventName=CreatePolicyVersion)||($.eventName=DeletePolicyVersion)||($.eventName=AttachRolePolicy)||($.eventName=DetachRolePolicy)||($.eventName=AttachUserPolicy)||($.eventName=DetachUserPolicy)||($.eventName=AttachGroupPolicy)||($.eventName=DetachGroupPolicy)}"
   log_group_name = "someLogGroup"
 
   metric_transformation {
-    name      = "ConsoleWithoutMFACountCopy"
-    namespace = "someNamespace"
-    value     = "1"
-  }
-}
-
-#Ensure a log metric filter and alarm exist for CloudTrail configuration changes
-resource "aws_cloudwatch_log_metric_filter" "CreateTrail" {
-  name           = "console-without-mfa7"
-  pattern        = "{($.eventName = CreateTrail) || ($.eventName = UpdateTrail) || ($.eventName = DeleteTrail) || ($.eventName = StartLogging) || ($.eventName = StopLogging)}"
-  log_group_name = "someOtherLogGroup"
-
-  metric_transformation {
     name      = "ConsoleWithoutMFACount"
     namespace = "someNamespace"
     value     = "1"
   }
 }
 
-#Ensure a log metric filter and alarm exist for AWS Management Console authentication failures
-resource "aws_cloudwatch_log_metric_filter" "consoleLogin" {
-  name           = "console-without-mfa8"
+resource "aws_cloudwatch_log_metric_filter" "CreateTrail" {
+  name           = "console-without-mfa"
+  pattern        = "{($.eventName = CreateTrail) || ($.eventName = UpdateTrail) || ($.eventName = DeleteTrail) || ($.eventName = StartLogging) || ($.eventName = StopLogging)}"
   log_group_name = "someLogGroup"
 
   metric_transformation {
@@ -296,9 +263,20 @@ resource "aws_cloudwatch_log_metric_filter" "consoleLogin" {
   }
 }
 
-#Ensure a log metric filter and alarm exist for disabling or scheduled deletion of customer created CMKs
+resource "aws_cloudwatch_log_metric_filter" "consoleLogin" {
+  name           = "console-without-mfa"
+  pattern        = "{($.eventName = ConsoleLogin) && ($.errorMessage = \"Failed authentication\")}"
+  log_group_name = "someLogGroup"
+
+  metric_transformation {
+    name      = "ConsoleWithoutMFACount"
+    namespace = "someNamespace"
+    value     = "1"
+  }
+}
+
 resource "aws_cloudwatch_log_metric_filter" "CMS" {
-  name           = "console-without-mfa9"
+  name           = "console-without-mfa"
   pattern        = "{($.eventSource = kms.amazonaws.com) && (($.eventName=DisableKey)||($.eventName=ScheduleKeyDeletion))} }"
   log_group_name = "someLogGroup"
 
@@ -309,9 +287,8 @@ resource "aws_cloudwatch_log_metric_filter" "CMS" {
   }
 }
 
-#Ensure a log metric filter and alarm exist for S3 bucket policy changes
 resource "aws_cloudwatch_log_metric_filter" "s3" {
-  name           = "console-without-mfa10"
+  name           = "console-without-mfa"
   pattern        = "{ ($.eventSource = s3.amazonaws.com) && (($.eventName = PutBucketAcl) || ($.eventName = PutBucketPolicy) || ($.eventName = PutBucketCors) || ($.eventName = PutBucketLifecycle) || ($.eventName = PutBucketReplication) || ($.eventName = DeleteBucketPolicy) || ($.eventName = DeleteBucketCors) || ($.eventName = DeleteBucketLifecycle) || ($.eventName = DeleteBucketReplication)) }"
   log_group_name = "someLogGroup"
 
@@ -322,9 +299,8 @@ resource "aws_cloudwatch_log_metric_filter" "s3" {
   }
 }
 
-#Ensure a log metric filter and alarm exist for AWS Config configuration changes
 resource "aws_cloudwatch_log_metric_filter" "KMS" {
-  name           = "console-without-mfa3"
+  name           = "console-without-mfa"
   pattern        = "{($.eventSource = config.amazonaws.com) && (($.eventName=StopConfigurationRecorder)||($.eventName=DeleteDeliveryChannel)||($.eventName=PutDeliveryChannel)||($.eventName=PutConfigurationRecorder))}"
   log_group_name = "someLogGroup"
 
@@ -335,9 +311,8 @@ resource "aws_cloudwatch_log_metric_filter" "KMS" {
   }
 }
 
-#Ensure a log metric filter and alarm exist for security group changes
 resource "aws_cloudwatch_log_metric_filter" "AuthorizeSecurityGroupIngress" {
-  name           = "console-without-mfa2"
+  name           = "console-without-mfa"
   pattern        = "{ ($.eventName = AuthorizeSecurityGroupIngress) || ($.eventName = AuthorizeSecurityGroupEgress) || ($.eventName = RevokeSecurityGroupIngress) || ($.eventName = RevokeSecurityGroupEgress) || ($.eventName = CreateSecurityGroup) || ($.eventName = DeleteSecurityGroup)}"
   log_group_name = "someLogGroup"
 
@@ -348,9 +323,8 @@ resource "aws_cloudwatch_log_metric_filter" "AuthorizeSecurityGroupIngress" {
   }
 }
 
-#Ensure a log metric filter and alarm exist for changes to Network Access Control Lists (NACL)
 resource "aws_cloudwatch_log_metric_filter" "CreateNetworkAcl" {
-  name           = "console-without-mfa11"
+  name           = "console-without-mfa"
   pattern        = "{ ($.eventName = CreateNetworkAcl) || ($.eventName = CreateNetworkAclEntry) || ($.eventName = DeleteNetworkAcl) || ($.eventName = DeleteNetworkAclEntry) || ($.eventName = ReplaceNetworkAclEntry) || ($.eventName = ReplaceNetworkAclAssociation) }"
   log_group_name = "someLogGroup"
 
@@ -361,9 +335,8 @@ resource "aws_cloudwatch_log_metric_filter" "CreateNetworkAcl" {
   }
 }
 
-#Ensure a log metric filter and alarm exist for changes to network gateways
 resource "aws_cloudwatch_log_metric_filter" "CreateCustomerGateway" {
-  name           = "console-without-mfa12"
+  name           = "console-without-mfa"
   pattern        = "{ ($.eventName = CreateCustomerGateway) || ($.eventName = DeleteCustomerGateway) || ($.eventName = AttachInternetGateway) || ($.eventName = CreateInternetGateway) || ($.eventName = DeleteInternetGateway) || ($.eventName = DetachInternetGateway) }"
   log_group_name = "someLogGroup"
 
@@ -374,9 +347,8 @@ resource "aws_cloudwatch_log_metric_filter" "CreateCustomerGateway" {
   }
 }
 
-#Ensure a log metric filter and alarm exist for route table changes
 resource "aws_cloudwatch_log_metric_filter" "CreateRoute" {
-  name           = "console-without-mfa13"
+  name           = "console-without-mfa"
   pattern        = "{ ($.eventName = CreateRoute) || ($.eventName = CreateRouteTable) || ($.eventName = ReplaceRoute) || ($.eventName = ReplaceRouteTableAssociation) || ($.eventName = DeleteRouteTable) || ($.eventName = DeleteRoute) || ($.eventName = DisassociateRouteTable) }"
   log_group_name = "someLogGroup"
 
@@ -387,9 +359,8 @@ resource "aws_cloudwatch_log_metric_filter" "CreateRoute" {
   }
 }
 
-#Ensure a log metric filter and alarm exist for VPC changes
 resource "aws_cloudwatch_log_metric_filter" "CreateVpc" {
-  name           = "console-without-mfa14"
+  name           = "console-without-mfa"
   pattern        = "{ ($.eventName = CreateVpc) || ($.eventName = DeleteVpc) || ($.eventName = ModifyVpcAttribute) || ($.eventName = AcceptVpcPeeringConnection) || ($.eventName = CreateVpcPeeringConnection) || ($.eventName = DeleteVpcPeeringConnection) ||($.eventName = RejectVpcPeeringConnection) || ($.eventName = AttachClassicLinkVpc) || ($.eventName = DetachClassicLinkVpc) || ($.eventName = DisableVpcClassicLink) || ($.eventName = EnableVpcClassicLink) }"
   log_group_name = "someLogGroup"
 
