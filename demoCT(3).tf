@@ -199,6 +199,8 @@ resource "aws_iam_account_password_policy" "strict_2" {
   allow_users_to_change_password = true
 }
 
+
+
 #Ensure a log metric filter and alarm exist for Management Console sign-in without MFA
 resource "aws_cloudwatch_log_metric_filter" "MFAUsed" {
   name           = "console-without-mfa"
