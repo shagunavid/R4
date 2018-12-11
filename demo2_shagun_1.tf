@@ -213,8 +213,6 @@ resource "aws_cloudtrail" "example" {
  }
 }
 
-
-
 resource "aws_cloudtrail" "example2" {
  is_multi_region_trail = true
  enable_logging = true
@@ -290,6 +288,7 @@ resource "aws_cloudwatch_log_metric_filter" "DeleteGroupPolicy" {
     value     = "1"
   }
 }
+
 
 resource "aws_cloudwatch_log_metric_filter" "CreateTrail" {
   name           = "console-without-mfa"
