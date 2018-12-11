@@ -410,18 +410,6 @@ resource "aws_cloudwatch_log_metric_filter" "CreateVpc" {
   }
 }
 
-resource "aws_cloudwatch_metric_alarm" "console_without_mfa" {
-  alarm_name          = "console-without-mfa-us-west-2"
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = "1"
-  metric_name         = "ConsoleWithoutMFACount"
-  namespace           = "someNamespace"
-  period              = "60"
-  statistic           = "Sum"
-  threshold           = "1"
-  alarm_description   = "Use of the console by an account without MFA has been detected"
-  alarm_actions       = ["someTopic"]
-}
 
 resource "aws_sns_topic" "security_alerts" {
   name  = "someTopic"
