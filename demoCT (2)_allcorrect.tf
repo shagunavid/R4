@@ -218,21 +218,6 @@ resource "aws_cloudtrail" "example" {
   }
 }
 
-resource "aws_cloudtrail" "example2" {
-
-  is_multi_region_trail = true
-
-  cloud_watch_logs_group_arn    = "aws:arn::log-group:someLogGroup:"
-  event_selector {
-    read_write_type = "All"
-    include_management_events = true
-
-    data_resource {
-      type   = "AWS::Lambda::Function"
-      values = ["arn:aws:lambda"]
-    }
-  }
-}
 
 
 #Ensure a log metric filter and alarm exist for Management Console sign-in without MFA
