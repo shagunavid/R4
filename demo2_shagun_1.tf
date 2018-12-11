@@ -200,19 +200,30 @@ resource "aws_iam_account_password_policy" "strict_2" {
 }
 
 resource "aws_cloudtrail" "example" {
+ is_multi_region_trail = true
+ enable_logging = true
+ cloud_watch_logs_group_arn    = "aws:arn::log-group:someLogGroup:"
+ event_selector {
+   read_write_type = "All"
+   include_management_events = true
+   data_resource {
+     type   = "AWS::Lambda::Function"
+     values = ["arn:aws:lambda"]
+   }
+ }
+}
 
-  is_multi_region_trail = true
 
-  cloud_watch_logs_group_arn    = "aws:arn::log-group:someLogGroup:"
-  event_selector {
-    read_write_type = "All"
-    include_management_events = true
-
-    data_resource {
-      type   = "AWS::Lambda::Function"
-      values = ["arn:aws:lambda"]
-    }
-  }
+#Ensure a log metric filter and alarm exist for unauthorized API calls
+resource "aws_cloudwatch_log_metric_filter" "UnauthorizedAccess" {
+ name           = "console-without-mfa4"
+ pattern        = "{ $.userIdentity.type = \"Root\" && $.userIdentity.invokedBy NOT EXISTS && $.eventType != \"AwsServiceEvent\" }"
+ log_group_name = "someLogGroup"
+ metric_transformation {
+   name      = "ConsoleWithoutMFACount"
+   namespace = "someNamespace"
+   value     = "1"
+ }
 }
 
 resource "aws_cloudwatch_log_metric_filter" "MFAUsed" {
